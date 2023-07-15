@@ -1,80 +1,68 @@
 import React, { useRef, useState } from 'react';
 import '../styles/App.css';
 
-const App = () => {
-  const startTime = useRef(0);
-  const intervalRef = useRef(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [laps, setLaps] = useState([]);
 
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 6000);
-    const seconds = Math.floor((time % 6000) / 100);
-    const milliseconds = time % 100;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
-  };
+function App() {
+  const [time, setTime] = useState(0);
+  const [laps, setLaps] = useState([]);
+  const intervalRef = useRef(null);
 
   const startStopwatch = () => {
-    if (!intervalRef.current) {
-      startTime.current = Date.now() - currentTime;
+    if (intervalRef.current === null) {
       intervalRef.current = setInterval(() => {
-        setCurrentTime(Date.now() - startTime.current);
+        setTime((prevTime) => prevTime + 0.01);
       }, 10);
     }
   };
 
   const stopStopwatch = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
   };
 
   const lapStopwatch = () => {
-    if (intervalRef.current) {
-      const lapTime = formatTime(currentTime);
-      setLaps((prevLaps) => [...prevLaps, lapTime]);
-    }
+    setLaps((prevLaps) => [...prevLaps, time.toFixed(3)]);
   };
 
   const resetStopwatch = () => {
-    stopStopwatch();
-    setCurrentTime(0);
+    setTime(0);
     setLaps([]);
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
   };
 
   return (
-    <div id="main">
-      <section>
-        <h1 className="seconds-elapsed">{formatTime(currentTime)}</h1>
-        <section className="buttons">
-          <button className="start-btn" onClick={startStopwatch}>
-            START
-          </button>
-          <button className="stop-btn" onClick={stopStopwatch}>
-            STOP
-          </button>
-          <button className="lap-btn" onClick={lapStopwatch}>
-            LAP
-          </button>
-          <button className="reset-btn" onClick={resetStopwatch}>
-            RESET
-          </button>
-        </section>
-      </section>
-      {laps.length > 0 && (
-        <section className="lap-section">
-          <h2>Laps</h2>
-          <section className="laps">
-            {laps.map((lap, index) => (
-              <p key={index}>{lap}</p>
-            ))}
-          </section>
-        </section>
-      )}
+    <div>
+      <h1>Stopwatch</h1>
+      <h2>{time.toFixed(3)}</h2>
+      <div>
+        <button onClick={startStopwatch}>START</button>
+        <button onClick={stopStopwatch}>STOP</button>
+        <button onClick={lapStopwatch}>LAP</button>
+        <button onClick={resetStopwatch}>RESET</button>
+      </div>
+      <div
+        className="lap-section"
+        style={{ display: laps.length > 0 ? "block" : "none" }}
+      >
+        <h3>Laps:</h3>
+        <ul className="laps">
+          {laps.map((lap, index) => (
+            <li key={index}>{lap}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
-};
+}
 
 export default App;
+
+
+
+  
+
+ 
+
+
 
