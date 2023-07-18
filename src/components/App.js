@@ -1,57 +1,64 @@
-import React, { useRef, useState } from 'react';
+
+   import React, { useRef, useState } from 'react'
 import '../styles/App.css';
-
-
 const App = () => {
-  const [time, setTime] = useState(0);
+  const startTime = useRef(0);
+  const intervalRef = useRef(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [laps, setLaps] = useState([]);
-  const intervalRef = useRef(null);
 
-  const startTimer = () => {
+  let secondsElapsed = 0;
+
+  const startStopWatch = () => {
+    startTime.current = Date.now();
     intervalRef.current = setInterval(() => {
-      setTime((prevTime) => prevTime + 0.01);
+      setCurrentTime(Date.now());
     }, 10);
-  };
+  }
 
-  const stopTimer = () => {
+  const stopStopWatch = () => {
     clearInterval(intervalRef.current);
-  };
+    intervalRef.current = 0;
+  }
 
-  const lapTimer = () => {
-    setLaps((prevLaps) => [...prevLaps, time.toFixed(3)]);
-  };
+  secondsElapsed = ((currentTime - startTime.current) / 1000);
 
-  const resetTimer = () => {
-    stopTimer();
-    setTime(0);
+  const resetStopWatch = () => {
+    setCurrentTime(0);
+    startTime.current = 0;
+    secondsElapsed = 0;
     setLaps([]);
-  };
+  }
+
+  const trackLaps = () => {
+    setLaps([...laps, secondsElapsed])
+  }
 
   return (
-    <div className="App">
-      <h1>Stopwatch</h1>
-      <div className="timer">{time.toFixed(3)}</div>
-      <div className="controls">
-        <button onClick={startTimer}>START</button>
-        <button onClick={stopTimer}>STOP</button>
-        <button onClick={lapTimer}>LAP</button>
-        <button onClick={resetTimer}>RESET</button>
-      </div>
-      <div className="lap-section">
-        {laps.length > 0 && (
-          <div>
-            <h2>Lap Times</h2>
-            <ul className="laps">
-              {laps.map((lap, index) => (
-                <li key={index}>{lap}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+    <div id="main">
+      <section>
+        <h1 className='seconds-elapsed'>{secondsElapsed.toFixed(3)}</h1>
+        <section className='buttons'>
+          <button onClick={startStopWatch} className="start-btn">START</button>
+          <button onClick={stopStopWatch} className="stop-btn">STOP</button>
+          <button onClick={trackLaps} className="lap-btn">LAP</button>
+          <button onClick={resetStopWatch} className="reset-btn">RESET</button>
+        </section>
+      </section>
+      {laps?.length ? (
+        <section className='lap-section'>
+          <h2>Laps</h2>
+          <section className='laps'>
+            {laps.map((lap) => (
+              <p key={lap}>{lap}</p>
+            ))}
+          </section>
+        </section>
+      ) : null}
     </div>
-  );
-};
+  )
+}
+
 
 export default App;
 
